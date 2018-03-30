@@ -1,0 +1,31 @@
+#WMIC Script
+#03/30/2018
+#Used for Mass Uninstall via WMIC from a Windows Computer
+#Availible for non-commercial use for free. Commercial use available with consent.
+#Calvin D. Cox
+
+#script will pull the computer name and the parts list from user and loop through the commands in the system, saving the output to a list. Building out may include letting users send argumets from multiple computers for the same command. Only req is that the computer has to be turned on.
+
+#Loading modules
+import os
+
+computer = 'computer-name'
+#computer = raw_input("Computer Name?")
+file_path ='list-of-uninstalls'
+#file_path = raw_input("What would you like to uninstall?")
+
+output = []
+retainer = ''
+
+with open(file_path, 'r') as r:
+    uninstall_list = r.readlines()
+
+if len(uninstall_list) > 1:
+    for program in uninstall_list:
+        retainer = os.popen('wmic /node:"' + computer + '" product where Name="' + str(uninstall_list[0]).rstrip() + ' " call uninstall /nointeractive').read()
+        output.append(retainer)
+else:
+    retainer = os.popen('wmic /node:"' + computer + '" product where Name="' + str(uninstall_list[0]).rstrip() + ' " call uninstall /nointeractive').read()
+    output.append(retainer)
+    
+print(output)
