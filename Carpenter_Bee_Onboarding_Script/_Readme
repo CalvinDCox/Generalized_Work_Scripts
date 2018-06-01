@@ -1,0 +1,33 @@
+Onboarding Script for incoming Staff
+MAPC
+Calvin Cox
+5/31/2018
+
+Purpose
+Script to streamline and automate the user creation process at MAPC.
+
+Key Functions
+- Create username and give default permissions to users filling out fields like email address, job position, and profile location
+- Create email and give MAPC Staff access to the calendar, while also dropping the user-name in the right database
+- (Possibly) Appending their email to the CSV file used for Trend automatically
+
+Inputs
+- First Name
+- Last Name
+- Job Title
+
+*Passwords, paths, and usernames should be default or derived from the three above.
+
+Outputs/Results
+I should be able to enter the three variables and run the script, then log in with the username/password specified on both email and on the computer. Calendars for new users should immediately be viewable to all staff, and controlled by "Netadmins" in the Email Control Panel
+Naturally need a status log for each step it could be as simple as
+
+----Task-----
+Any errors? 1 or 0
+
+
+
+----- Useful Links
+New-ADUser
+https://docs.microsoft.com/en-us/powershell/module/addsadministration/new-aduser?view=win10-ps
+
