@@ -12,5 +12,6 @@ $username = $firstname.Substring(0,1) + $lastname
 $displayname = $lastname + ", " + $firstname
 $emailaddress = $username + "@mapc.org"
 
+New-Item -ItemType directory -Path \\Data-001\users$\$username -WhatIf
 
 New-ADUser -AccountPassword $Password -ChangePasswordAtLogon 1 -Company "MAPC" -Department $department -DisplayName $displayname -EmailAddress $emailaddress -Enabled 1 -WhatIf
