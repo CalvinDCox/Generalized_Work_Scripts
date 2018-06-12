@@ -9,5 +9,8 @@ $department = "Loitering"
 $jobtitle = "Desk Analyst"
 $Password = ConvertTo-SecureString -String [Orgpassword] -AsPlainText -force #created from default password, gonna need to force user to change on sign-on
 $username = $firstname.Substring(0,1) + $lastname
+$displayname = $lastname + ", " + $firstname
+$emailaddress = $username + "@mapc.org"
 
-New-ADUser -AccountPassword $Password -ChangePasswordAtLogon True -Company "MAPC" -Department $department -DisplayName $lastname + ", " + $firstname -EmailAddress $username + "@mapc.org" -Enabled True -WhatIf
+
+New-ADUser -AccountPassword $Password -ChangePasswordAtLogon 1 -Company "MAPC" -Department $department -DisplayName $displayname -EmailAddress $emailaddress -Enabled 1 -WhatIf
