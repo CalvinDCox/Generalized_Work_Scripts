@@ -31,3 +31,8 @@ Any errors? 1 or 0
 New-ADUser
 https://docs.microsoft.com/en-us/powershell/module/addsadministration/new-aduser?view=win10-ps
 
+
+
+Getting Powershell to Check what letter a variable starts with (if string)
+http://newdelhipowershellusergroup.blogspot.com/2012/01/part-3-text-manipulation-in-powershell.html
+
