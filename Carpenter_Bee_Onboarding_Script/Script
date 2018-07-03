@@ -1,30 +1,56 @@
 # Mapc Onboarding Script
 # Calvin D. Cox
-# Creates new users in AD and also Email
+# Creates new users in AD (and eventually email)
+
+Import-Module ActiveDirectory
 
 #Section will eventually ask the user for information
 $firstname = "John"
 $lastname = "Doe"
 $department = "Loitering"
 $jobtitle = "Desk Analyst"
-$Password = ConvertTo-SecureString -String "[Redacted]" -AsPlainText -force #created from default password, gonna need to force user to change on sign-on
+$Password = [defaultpass] #created from default password, gonna need to force user to change on sign-on
 $username = $firstname.Substring(0,1) + $lastname
 $displayname = $lastname + ", " + $firstname
 $emailaddress = $username + "@mapc.org"
+$activedirectorypath = "[domain]\MAPC Users\Testing"
+$profiledirectory = "\\[U drive]\users$\" + $username
+$TSPPath_old = ""  #Leave blank pulled later
+
+#This makes sure we have the right Database for the last name
+If ($lastname.Substring(0,1) -match "^[a-m].*")
+    {
+    $databasename = "MBX_DB2_A-M"
+    }
+Else
+    {
+    $databasename = "MBX_DB_N-Z"
+    }
+
+ConvertTo-SecureString -String $Password -AsPlainText -force
 
 #Append -WhatIf to all commands to check functionality before going live.
 
-New-Item -ItemType directory -Path [\\Home\Directory\Path] -WhatIf
+#Creating Home Directory for user on [U Drive]
+New-Item -ItemType directory -Path \\[U Drive]\users$\$username
 
-New-ADUser -Name $displayname `
--AccountPassword $Password `
--ChangePasswordAtLogon 1 `
--Company "MAPC" `
--Department $department `
--DisplayName $displayname `
--EmailAddress $emailaddress `
--Enabled 1 `
--Description $jobtitle `
--HomeDirectory [\\Home\Directory\Path] `
--Path 
--WhatIf
+#Creating new user with proper values already filled from variables above, or company defaults.
+New-ADUser -Name "$displayname" -AccountPassword "$Password" -ChangePasswordAtLogon 1 -Company "MAPC" -Department "$department" -DisplayName "$displayname" -EmailAddress "$emailaddress" -Enabled 1 -Description "$jobtitle" -Path "$activedirectorypath" -ProfilePath "$profiledirectory" -Server "[server]"
+
+#Now that the user has been created you should be able to find thier TS Profile path
+$TSPmodifyuser = Get-ADUser -filter $username | select samaccountname, DistingushedName, @{n="TSProfilePath";e={([adsi]("LDAP://" + $_.DistinguishedName)).psbase.InvokeGet("terminalservicesprofilepath")}} | ?{$_.TSProfilePath -eq $TSPPath_old}
+
+#Update new profile path and remote control options
+Write-Host ("Working on " + $TSPmodifyuser.samaccountname)
+	$DirectoryEntry = [adsi]("LDAP://" + $TSPmodifyuser.DistinguishedName)
+	$DirectoryEntry.psbase.invokeSet("TerminalServicesProfilePath",$profiledirectory) #This is the Remote Desktop Services > Profile Path
+    $DirectoryEntry.psbase.invokeSet("EnableRemoteControl","2") #This is Remote Control > Require User's Permission
+$DirectoryEntry.setinfo()
+
+
+#Adds new users to groups in AD
+Add-ADGroupMember -Identity "MAPC_Staff" -Members $username -Server "[server]"
+Add-ADGroupMember -Identity "Not_MetroWest" -Members $username -Server "[server]"
+
+#### This is in Exchange but I have no clue how to connect from one script right now#####
+#Enable-Mailbox -Identity $username -Database $databasename - -WhatIf
