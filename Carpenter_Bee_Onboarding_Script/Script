@@ -15,6 +15,7 @@ $displayname = $lastname + ", " + $firstname
 $emailaddress = $username + "@mapc.org"
 $activedirectorypath = "[domain]\MAPC Users\Testing"
 $profiledirectory = "\\[U drive]\users$\" + $username
+$upn = $username + "[Domain Address]" #User Principal Name
 $TSPPath_old = ""  #Leave blank pulled later
 
 #This makes sure we have the right Database for the last name
