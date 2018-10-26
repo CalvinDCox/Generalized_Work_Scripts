@@ -53,5 +53,21 @@ $DirectoryEntry.setinfo()
 Add-ADGroupMember -Identity "MAPC_Staff" -Members $username -Server "[server]"
 Add-ADGroupMember -Identity "Not_MetroWest" -Members $username -Server "[server]"
 
-#### This is in Exchange but I have no clue how to connect from one script right now#####
-#Enable-Mailbox -Identity $username -Database $databasename - -WhatIf
+####Exchange
+#Logging into session
+$UserCredential = Get-Credential
+
+#Initializing Remote session and loading CMDlets
+$Session = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri http://[Exchange Address]/PowerShell/ -Authentication Kerberos -Credential $UserCredential
+Import-PSSession $Session -DisableNameChecking
+
+##You can put any part of an exchange powershell script in this area to run
+#Creating User Mailbox (Right now it looks like this is not creating the same mailbox that is used by other accounts. Retention policy might be all that is missing)
+Enable-Mailbox -Identity $username -Database $databasename -RetentionPolicy "Default MRM Policy"
+
+#Adding Ability to View Calendar for Staff, and Edit for Admins
+Add-MailboxFolderPermission -Identity ${username}:\Calendar -User [Default User List] -AccessRights Reviewer
+Add-MailboxFolderPermission -Identity $username -User [administrators] -AccessRights PublishingEditor
+
+#Closing Session
+Remove-PSSession $Session
