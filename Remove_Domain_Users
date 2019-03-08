@@ -1,0 +1,24 @@
+#Remove "Domain Users" from admin group of domain computers
+
+
+Import-Csv -Path "\\Path\To\Computer_List_2-1.csv" | Foreach-Object {
+
+   foreach ($computer in $_.PSObject.Properties) {
+
+   $LocalComputer = [adsi]"WinNT://$($computer.Value)"
+   $LocalGroup = $LocalComputer.Children.Find('Administrators', 'group')
+   $DomainGroup = [adsi]"WinNT://Localdomianserver/Domain Users"
+
+   $LocalGroup.Remove($DomainGroup.Path)
+
+   if($?)
+   {
+    "Command sucess on $($computer.Value)"
+   }
+   else
+   {
+    "Unsucessful removal on $($computer.Value)"
+   }
+#end loop
+   }
+   }
