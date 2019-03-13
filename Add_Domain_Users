@@ -1,0 +1,35 @@
+#Add "Domain Users" to Power Users group of domain computers
+#Calvin D. Cox
+#3/13/2019
+#This is meant to be run on a smaller batch of computers, for larger queries its recommended to change the If-Then to a log file
+
+#Hacky
+
+#Set-ExecutionPolicy Unrestricted -Scope CurrentUser
+
+Import-Csv -Path "H:\_Powershell Scripts\Data_Services.csv" | Foreach-Object {
+
+   foreach ($computer in $_.PSObject.Properties) {
+
+   #For each computer connect via ADSI
+   $LocalComputer = [adsi]"WinNT://$($computer.Value)"
+
+   #Then Find the group "Power Users" and fetch ADSI name for "Domain Users"
+   $LocalGroup = $LocalComputer.Children.Find('Power Users', 'group')
+   $DomainGroup = [adsi]"WinNT://[domain server]/Domain Users"
+
+   #Add the desired group from "Power Users" local group
+   $LocalGroup.Add($DomainGroup.Path)
+
+   #This If-Then just gives us visual confirmation that the previous command ran on the computer
+   if($?)
+   {
+    "Command sucess on $($computer.Value)"
+   }
+   else
+   {
+    "Unsucessful addition on $($computer.Value)"
+   }
+#end loop
+   }
+   }
