@@ -1,16 +1,24 @@
 #Remove "Domain Users" from admin group of domain computers
+#Calvin D. Cox
+#3/13/2019
+#This is meant to be run on a smaller batch of computers, for larger queries its recommended to change the If-Then to a log file
 
-
+#Import CSV containing a list of computers to be modified
 Import-Csv -Path "\\Path\To\Computer_List_2-1.csv" | Foreach-Object {
 
    foreach ($computer in $_.PSObject.Properties) {
-
+   
+   #For each computer connect via ADSI
    $LocalComputer = [adsi]"WinNT://$($computer.Value)"
+   
+   #Then Find the group "Administrators" and fetch ADSI name for "Domain Users"
    $LocalGroup = $LocalComputer.Children.Find('Administrators', 'group')
    $DomainGroup = [adsi]"WinNT://Localdomianserver/Domain Users"
-
+   
+   #Remove the desired group from "Administrators" local group
    $LocalGroup.Remove($DomainGroup.Path)
 
+   #This If-Then just gives us visual confirmation that the command ran on the computer
    if($?)
    {
     "Command sucess on $($computer.Value)"
